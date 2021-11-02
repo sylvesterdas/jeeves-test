@@ -36,6 +36,10 @@ You need to create API in NodeJS.
 ## Technology
 
 ### NodeJS : Latest version
+
 - Used Node 14 LTS
+- express
 
 ### Database : MySQL/MongoDB/Postgres
+
+- Used MongoDB
