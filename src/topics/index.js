@@ -36,6 +36,10 @@ topicRoutes.post('/', async (req, res) => {
 
         const { name } = req.body;
 
+        if (!name) {
+            throw new Error('name is required');
+        }
+
         const topic = await Topic.create({
             name, createdBy
         });
