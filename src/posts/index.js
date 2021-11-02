@@ -1,6 +1,9 @@
 const { Router } = require("express");
 const { Post } = require("../model/post");
 const { Types: { ObjectId } } = require('mongoose')
+const commentRoutes = require("../comments");
+const { Comment } = require("../model/comments");
+const { stringify } = require("JSONStream");
 
 const postRoutes = new Router({ strict: true });
 
@@ -34,13 +37,12 @@ postRoutes.get('/', async (req, res) => {
 })
 
 postRoutes.post('/', async (req, res) => {
-    console.debug('Incoming Post creation', req.body);
     try {
         const { user } = req;
         const createdBy = ObjectId(user.user_id);
-    
+
         const { title, body, topic } = req.body;
-    
+
         if (!title || !topic) {
             throw new Error('title and topic are required');
         }
@@ -54,5 +56,23 @@ postRoutes.post('/', async (req, res) => {
         return res.status(500).send(err.message);
     }
 });
+
+postRoutes.get('/:id', (req, res) => {
+    try {
+        const { id } = req.params;
+
+        Post.findById(id)
+            .cursor()
+            .pipe(stringify())
+            .pipe(res.type('json'));
+    } catch (err) {
+        return res.status(500).send(err.message);
+    }
+})
+
+postRoutes.use('/:id/comments', (req, _, next) => {
+    req.postId = req.params.id;
+    next();
+}, commentRoutes);
 
 module.exports = postRoutes;
